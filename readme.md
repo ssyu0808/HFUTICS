@@ -1,5 +1,5 @@
 > 1. username = 'xxxxxxxxxx'  学号
-> 2. password = 'xxxxxx'      身份证后六位
+> 2. password = 'xxxxxx'      身份证后六位(x用小写)
 > 3. 默认是生成本学期的，可以修改第64行左右 semesterId 来生成其它学期的
 > 4. 程序不进行任何异常捕获，所以不保证运行正常
 > 5. 2020/06/08 测试正常
