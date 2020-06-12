@@ -77,25 +77,11 @@ BEGIN:VCALENDAR
 PRODID:tuanzi
 VERSION:2.0
 X-WR-CALNAME:课表
-BEGIN:VTIMEZONE
-TZID:China Standard Time
-BEGIN:STANDARD
-DTSTART:16010101T000000
-TZOFFSETFROM:+0800
-TZOFFSETTO:+0800
-END:STANDARD
-BEGIN:DAYLIGHT
-DTSTART:16010101T000000
-TZOFFSETFROM:+0800
-TZOFFSETTO:+0800
-END:DAYLIGHT
-END:VTIMEZONE
+
 ''')
     for oneClass in scheduleList:
-        DTSTART = 'DTSTART;TZID=China Standard Time:{date}T{startTime:0>4d}00'.format(
-            date=oneClass['date'].replace('-', ''), startTime=oneClass['startTime'])
-        DTEND = 'DTEND;TZID=China Standard Time:{date}T{endTime:0>4d}00'.format(
-            date=oneClass['date'].replace('-', ''), endTime=oneClass['endTime'])
+        DTSTART = 'DTSTART:{}T{:0>4d}00Z'.format(oneClass['date'].replace('-', ''), oneClass['startTime'] - 800)
+        DTEND = 'DTEND:{}T{:0>4d}00Z'.format(oneClass['date'].replace('-', ''), oneClass['endTime'] - 800)
         DESCRIPTION = 'DESCRIPTION:' + oneClass['personName']
         if oneClass['room'] != None:
             LOCATION = 'LOCATION:' + oneClass['room']['nameZh']
@@ -103,6 +89,12 @@ END:VTIMEZONE
             LOCATION = 'LOCATION:未安排教室'
         SUMMARY = 'SUMMARY:' + lessonName[oneClass['lessonId']]
         file.write('BEGIN:VEVENT' + '\n')
+        file.write('UID:'
+                   + hashlib.sha1(lessonName[oneClass['lessonId']].encode(encoding='utf-8')).hexdigest()
+                   + '-{}T{:0>4d}00Z'.format(oneClass['date'].replace('-', ''), oneClass['startTime'] - 800)
+                   + '-{}T{:0>4d}00Z'.format(oneClass['date'].replace('-', ''), oneClass['endTime'] - 800)
+                   + '\n')
+        file.write('DTSTAMP:20190101T000000Z' + '\n')
         file.write(DTSTART + '\n')
         file.write(DTEND + '\n')
         file.write(DESCRIPTION + '\n')
@@ -135,14 +127,20 @@ def getTimeTableIcs(username: str, password: str):
 # 5. 2020/06/08 测试正常
 # 6. 适用于新版教务系统
 # 7. 运行环境: python37 需要的包: json requests re hashlib(python3自带)
-# 5. 作者: tuanzi
-print('说明：')
-print('1. 合肥校区密码可能是身份证后六位（带x的话可能需要小写）')
-print('2. 宣城校区密码可能是学号')
-print('3. 具体可以在 信息门户 -> 本科教务 -> 你好，XXX(右上角) -> 账号设置 查看')
-print('4. 运行成功的话会在当前目录下生成 0.ics 文件')
-print('5. 建议配合Google日历/outlook日历使用')
-print('6. 项目源码地址 https://github.com/ssyu0808/HFUTICS')
+# 8. 作者: tuanzi
+
+print('说明:')
+print('-有关密码')
+print('\t- 合肥校区初始密码是身份证后六位(x小写)')
+print('\t- 宣城校区初始密码是学号')
+print('\t- 修改过密码可以在 [信息门户->本科教务->你好，XXX(右上角)->账号设置] 查看')
+print('-有关ics文件')
+print('\t- 生成的ics文件符合RFC 5545标准, 遵循这个协议的邮箱/日历类软件理论上都可以使用')
+print('\t- 推荐使用outlook日历网页端进行导入 ( https://outlook.live.com/calendar )')
+print('-有关项目')
+print('\t- 作者: tuanzi')
+print('\t- 项目源码地址 https://github.com/ssyu0808/HFUTICS')
+print('\n')
 username = input('输入学号: ')
 password = input('输入密码: ')
 
@@ -151,17 +149,3 @@ getTimeTableIcs(username=username, password=password)
 print('我也不知道成没成，看一下当前目录下的0.ics文件有没有内容吧！')
 input('按任意键退出...')
 
-# 114 2020-2021学年第一学期
-# 94  2019-2020学年第二学期
-# 74  2019-2020学年第一学期
-# 54  2018-2019学年第二学期
-# 35  2018-2019学年第一学期
-# 33  2017-2018学年第二学期
-# 32  2017-2018学年第一学期
-# 31  2016-2017学年第二学期
-# 30  2016-2017学年第一学期
-# 29  2015-2016学年第二学期
-# 28  2015-2016学年第一学期
-# 27  2014-2015学年第二学期
-# 26  2014-2015学年第一学期
-# 25  2013-2014学年第二学期
